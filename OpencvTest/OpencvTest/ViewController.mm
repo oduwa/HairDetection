@@ -12,7 +12,14 @@
 #include <opencv2/imgcodecs/ios.h>
 #include <opencv2/objdetect/objdetect.hpp>
 
-@interface ViewController ()
+
+
+@interface ViewController (){
+    BOOL isCameraOn;
+    cv::Mat lastFrame;
+}
+
+@property (nonatomic, strong) CvVideoCamera *videoCamera;
 
 @end
 
@@ -22,7 +29,18 @@ cv::CascadeClassifier face_cascade;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     // Do any additional setup after loading the view, typically from a nib.
+    self.view.backgroundColor = [UIColor whiteColor];
+    self.videoCamera = [[CvVideoCamera alloc] initWithParentView:self.imageView];
+    self.videoCamera.defaultAVCaptureDevicePosition = AVCaptureDevicePositionFront;
+    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset352x288;
+    self.videoCamera.defaultAVCaptureVideoOrientation = AVCaptureVideoOrientationPortrait;
+    self.videoCamera.defaultFPS = 30;
+    self.videoCamera.grayscaleMode = NO;
+    self.videoCamera.delegate = self;
+    
+    
     
     // Initialize face classifier
     char *cascadeName = (char*)"haarcascade_frontalface_alt";
@@ -33,12 +51,15 @@ cv::CascadeClassifier face_cascade;
         printf("Load error");
     }
     
+    
 //    cv::Mat grabCut = [self grabCut];
 //    self.imageView.image = MatToUIImage(grabCut);
     
     //[self skinSegmentation];
     //[self detectFace];
-    [self skinColor];
+    //[self skinColor];
+    //[self differenceBetweenSkinAndFullImage];
+    //[self findContours];
 }
 
 - (std::string) getBundlePathForResourceWithName:(char *)name andType:(char *)type
@@ -59,6 +80,18 @@ cv::CascadeClassifier face_cascade;
     return stringPath;
 }
 
+- (IBAction)didPressButton:(id)sender {
+    isCameraOn = !isCameraOn;
+    if(isCameraOn){
+        [self.videoCamera start];
+        [self.cameraButton setTitle:@"STOP" forState:UIControlStateNormal];
+    }
+    else{
+        [self.videoCamera stop];
+        [self.cameraButton setTitle:@"START" forState:UIControlStateNormal];
+        self.imageView.image = MatToUIImage(lastFrame);
+    }
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -162,8 +195,8 @@ cv::CascadeClassifier face_cascade;
     cv::Mat grabCut;
     
     // Load image
-    self.imageView.image = [UIImage imageNamed:@"face5.jpg"];
-    UIImageToMat([UIImage imageNamed:@"face5.jpg"], src, false);
+    self.imageView.image = [UIImage imageNamed:@"face1.jpg"];
+    UIImageToMat([UIImage imageNamed:@"face1.jpg"], src, false);
     
     // Convert to CV_8UC3 because grabCut() needs it
     cvtColor(src, src8UC3, CV_BGRA2BGR);
@@ -195,57 +228,73 @@ cv::CascadeClassifier face_cascade;
     return grabCut;
 }
 
-- (void) skinDetection
+- (cv::Mat) grabCut:(cv::Mat)src
 {
-    cv::Mat src;
+    // Declare vars
     cv::Mat src8UC3;
-    UIImageToMat([UIImage imageNamed:@"face1.jpg"], src, false);
+    cv::Mat grabCut;
+    
+    // Convert to CV_8UC3 because grabCut() needs it
     cvtColor(src, src8UC3, CV_BGRA2BGR);
     
-    cv::Mat grabCut = [self grabCut];
-    cv::Mat src_YCrCb(grabCut.size(), CV_8SC3);
-    cv::Mat src_hsv(grabCut.size(), CV_8SC3);
-    cv::Mat skinDetection(grabCut.size(), grabCut.type());
-    skinDetection.setTo(cv::Scalar(0,0,255));
+    /*
+     if(src8UC3.type() == CV_8UC3){
+     NSLog(@"pikeachu.");
+     }
+     else if(src8UC3.type() == CV_8UC4){
+     NSLog(@"raihu.");
+     }
+     */
     
-    cvtColor(grabCut, src_YCrCb, CV_BGR2YCrCb);
-    grabCut.convertTo(src_hsv, CV_32FC3);
-    cvtColor(src_hsv, src_hsv, CV_BGR2HSV);
-    cv::normalize(src_hsv, src_hsv, 0.00, 255.00, cv::NORM_MINMAX, CV_32FC3);
+    // Initialise stuff for grabCut
+    cv::Mat result(src8UC3.size(), src8UC3.type());
+    cv::Mat bgModel;// background model
+    cv::Mat fgModel;// foreground model
     
-    for(int r = 0; r < grabCut.rows; r++){
-        for(int c = 0; c< grabCut.cols; c++){
-            cv::Vec3b pixel_val_rgb = grabCut.at<cv::Vec3b>(r, c);
-            int b = (int) pixel_val_rgb[0];
-            int g = (int) pixel_val_rgb[1];
-            int r = (int) pixel_val_rgb[2];
-            bool a1 = R1(r, g, b);
-            
-            cv::Vec3b Pixel_val_YCrCb = src_YCrCb.at<cv::Vec3b>(r, c);
-            int Y = (int) Pixel_val_YCrCb[0];
-            int Cr = (int) Pixel_val_YCrCb[1];
-            int Cb = (int) Pixel_val_YCrCb[2];
-            bool a2 = R2(Y, Cr, Cb);
-            
-            cv::Vec3b pixel_val_hsv = src_hsv.at<cv::Vec3b>(r, c);
-            int h = (int) pixel_val_hsv[0];
-            int s = (int) pixel_val_hsv[1];
-            int v = (int) pixel_val_hsv[2];
-            bool a3 = R3(h, s, v);
-            
-            if(!(a1 && a2 && a3)){
-                skinDetection.at<cv::Vec3b>(r, c) = cv::Vec3b(0,0,255);
-            }
-            else{
-                skinDetection.at<cv::Vec3b>(r, c) = src8UC3.at<cv::Vec3b>(r, c);
-            }
-        }
-    }
+    // Draw a rectangle
+    cv::Rect rectangle(1,1,src8UC3.cols-1,src8UC3.rows-1);
     
-    self.imageView.image = MatToUIImage(skinDetection);
+    // Perform grabcut
+    cv::grabCut(src8UC3, result, rectangle, bgModel, fgModel, 10, cv::GC_INIT_WITH_RECT);
+    cv::compare(result, cv::Scalar(3,3,3), result, cv::CMP_EQ);
+    grabCut = cv::Mat(src8UC3.size(), CV_8UC3, cv::Scalar(255,255,255));
+    src8UC3.copyTo(grabCut, result);
+    
+    //self.imageView.image = MatToUIImage(grabCut);
+    return grabCut;
 }
 
-- (void) skinSegmentation
+- (cv::Mat) skinSegmentation:(cv::Mat)grabCut
+{
+    cvtColor(grabCut, grabCut, CV_RGB2BGR);
+    //self.imageView.image = MatToUIImage(grabCut);
+    
+    
+    cv::Mat skinDetection(grabCut.size(), grabCut.type());
+    skinDetection.setTo(cv::Scalar(0,0,255));
+    cvtColor(skinDetection, skinDetection, CV_RGB2BGR);
+    cv::Mat skinMask;
+    cv::Mat hsvMatrix;
+    
+    cv::Scalar lower(0,48,80);//lower(120,120,120);
+    cv::Scalar upper(20,255,255);//upper(240,180,280);
+    
+    cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
+    cv::inRange(hsvMatrix, lower, upper, skinMask);
+    
+    cv::Mat kernel(cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(11,11)));
+    cv::erode(skinMask, skinMask, kernel);
+    cv::dilate(skinMask, skinMask, kernel);
+    
+    cv::GaussianBlur(skinMask, skinMask, cv::Size(3,3), 0);
+    cv::bitwise_and(grabCut, grabCut, skinDetection, skinMask);
+    
+    //self.imageView.image = MatToUIImage(skinDetection);
+    [self uiimwrite:MatToUIImage(skinDetection) withName:@"skin_hsv"];
+    return skinDetection;
+}
+
+- (cv::Mat) skinSegmentation
 {
 //    cv::Mat src;
 //    cv::Mat src8UC3;
@@ -278,30 +327,10 @@ cv::CascadeClassifier face_cascade;
     cv::GaussianBlur(skinMask, skinMask, cv::Size(3,3), 0);
     cv::bitwise_and(grabCut, grabCut, skinDetection, skinMask);
     
-    self.imageView.image = MatToUIImage(skinDetection);
+    //self.imageView.image = MatToUIImage(skinDetection);
+    return skinDetection;
 }
 
-bool R1(int R,int G,int B)
-{
-    bool e1 = (R>95) && (G>40) && (B>20) && ((MAX(R,MAX(G,B)) - MIN(R,MIN(G,B)))>15) && (ABS(R-G)>15) && (R>G) && (R>B);
-    bool e2 = (R>220) && (G>210) && (B>170) && (ABS(R-G)<=15) && (R>B) && (G>B);
-    return (e1||e2);
-}
-
-bool R2(float Y, float Cr, float Cb)
-{
-    bool e3 = Cr <= 1.5862*Cb+20;
-    bool e4 = Cr >= 0.3448*Cb+76.2069;
-    bool e5 = Cr >= -4.5652*Cb+234.5652;
-    bool e6 = Cr <= -1.15*Cb+301.75;
-    bool e7 = Cr <= -2.2857*Cb+432.85;
-    return e3 && e4 && e5 && e6 && e7;
-}
-
-bool R3(float H, float S, float V)
-{
-    return (H<25) || (H > 230);
-}
 
 - (void) detectFace
 {
@@ -327,6 +356,27 @@ bool R3(float H, float S, float V)
     }
     
     self.imageView.image = MatToUIImage(frame);
+}
+
+- (void) markFacesInFrame:(cv::Mat)frame
+{
+    std::vector<cv::Rect> faces;
+    cv::Mat frame_gray;
+    
+    cvtColor(frame, frame_gray, CV_BGRA2GRAY);
+    cv::equalizeHist(frame_gray, frame_gray);
+    
+    // Detect faces
+    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, cv::Size(30, 30));
+    
+    for(size_t i = 0; i < faces.size(); i++){
+        cv::Point center(faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5);
+        
+        // draw around face
+        cv::rectangle(frame, cv::Point(faces[i].x,faces[i].y), cv::Point(faces[i].x+faces[i].width,faces[i].y+faces[i].height), cv::Scalar(0,255,0), 4);
+        //cv::ellipse(frame, center, cv::Size(faces[i].width*0.5,faces[i].height*0.5), 0, 0, 360, cv::Scalar(255,0,255), 4, 8, 0);
+        // TODO: Maybe detect eyes to make face skin colour detection more accurate
+    }
 }
 
 - (std::vector<cv::Rect>) detectFacesInImage:(cv::Mat)frame
@@ -378,6 +428,114 @@ bool R3(float H, float S, float V)
     [self imwrite:faceROI_hsv];
 }
 
+- (cv::Mat) differenceBetweenSkinAndFullImage
+{
+    /* Prep */
+    // Declare vars
+    cv::Mat src;
+    
+    // Load image
+    UIImageToMat([UIImage imageNamed:@"face5.jpg"], src, false);
+    cvtColor(src, src, CV_BGRA2BGR);
+    
+    
+    // Grabcut
+    cv::Mat grabCut = [self grabCut:src];
+   // [self imwrite:grabCut withName:@"grabcut"];
+    
+    // Skin detection
+    cv::Mat skinDetection = [self skinSegmentation:grabCut];
+    //[self imwrite:skinDetection withName:@"skin_rgb"];
+    self.imageView.image = MatToUIImage(skinDetection);
+    cvtColor(skinDetection, skinDetection, CV_RGB2BGR);
+    
+    
+    cv::Mat difference(src.size(), src.type());
+    difference.setTo(cv::Scalar(255,255,255));
+    int rows = difference.rows;
+    int cols = difference.cols;
+    
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            cv::Vec3b grabcut_pixel_vals = grabCut.at<cv::Vec3b>(r, c);
+            cv::Vec3b skin_pixel_vals = skinDetection.at<cv::Vec3b>(r, c);
+            //extract those pixels which are non blue/nonwhite in 1st image and red in 2nd image
+            if( ((grabcut_pixel_vals[0] != 255 ) && (grabcut_pixel_vals[1] != 255 ) && (grabcut_pixel_vals[2] != 255)) &&
+                ((skin_pixel_vals[0] == 0) && (skin_pixel_vals[1] == 0) &&(skin_pixel_vals[2] == 255) )){
+                difference.at<cv::Vec3b>(r, c) = src.at<cv::Vec3b>(r, c);
+                //NSLog(@"pikachu.");
+            }
+        }
+    }
+    
+    //self.imageView.image = MatToUIImage(difference);
+    //[self imwrite:difference withName:@"diff"];
+    
+    
+    /****** EROSION & DILUTION *******/
+    cv::Mat morph(src.size(), src.type());
+    int erosionSize = 2;
+    cv::Mat erosionKernel = cv::getStructuringElement(cv::MORPH_ERODE, cv::Size(2*erosionSize+1,2*erosionSize+1));
+    cv::erode(difference, morph, erosionKernel);
+    
+    self.imageView.image = MatToUIImage(difference);
+    //[self imwrite:difference withName:@"erosion"];
+    
+    return difference;
+}
+
+- (void) findContours
+{
+    cv::Mat grayImage;
+    cv::Mat cannyImage;
+    std::vector<std::vector<cv::Point>> contours;
+    cv::Mat difference = [self differenceBetweenSkinAndFullImage];
+    self.imageView.image = MatToUIImage(difference);
+    
+    cvtColor(difference, grayImage, CV_BGR2GRAY);
+    cv::Canny(grayImage, cannyImage, 100, 200);
+    
+    //morph edge detected image to improve egde connectivity
+    cv::Mat kernel = cv::getStructuringElement(CV_SHAPE_RECT, cv::Size(5,5));
+    cv::morphologyEx(cannyImage, cannyImage, cv::MORPH_CLOSE, kernel);
+    [self imwrite:cannyImage withName:@"canny"];
+    
+    cv::Mat hierarchy;
+    cv::findContours(cannyImage, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    cv::Mat imgContoured(cannyImage.size(), CV_8UC3);
+    imgContoured.setTo(cv::Scalar(255,255,255));
+    
+    double maxArea = cv::contourArea(contours.at(0));
+    int maxAreaIndex = 0;
+    std::vector<cv::Point> temp_contour;
+    for(int i = 1; i < contours.size(); i++){
+        temp_contour = contours.at(i);
+        double curr_cont_area = cv::contourArea(temp_contour);
+        if(maxArea < curr_cont_area){
+            maxArea = curr_cont_area;
+            maxAreaIndex = i;
+        }
+    }
+    cv::drawContours(imgContoured, contours, maxAreaIndex, cv::Scalar(0,0,0), -1);
+    
+    // Create mask for finding hair
+    
+    
+    self.imageView.image = MatToUIImage(imgContoured);
+}
+
+#pragma mark - Protocol CvVideoCameraDelegate
+
+- (void)processImage:(cv::Mat&)image;
+{
+    /*
+    [self markFacesInFrame:image];
+    lastFrame = image;
+     */
+    cv::Mat cpy = [self grabCut:image];
+    cvtColor(cpy, image, CV_BGR2RGB);
+}
+
 - (void) imwrite:(cv::Mat)img
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -393,5 +551,42 @@ bool R3(float H, float S, float V)
     NSLog(@"\nIMAGE SAVED TO %@\n", filePath);
 }
 
+- (void) uiimwrite:(UIImage *)img
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *directory = [paths objectAtIndex:0];
+    NSString *filePath = [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"hand%f.jpg", CFAbsoluteTimeGetCurrent()]];
+    
+    [UIImageJPEGRepresentation(img, 1.0) writeToFile:filePath atomically:YES];
+    
+    NSLog(@"\nIMAGE SAVED TO %@\n", filePath);
+}
+
+- (void) imwrite:(cv::Mat)img withName:(NSString *)name
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *directory = [paths objectAtIndex:0];
+    NSString *filePath = [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@_%f.jpg", name, CFAbsoluteTimeGetCurrent()]];
+    const char* filePathC = [filePath cStringUsingEncoding:NSMacOSRomanStringEncoding];
+    
+    const cv::String thisPath = (const cv::String)filePathC;
+    
+    //Save image
+    imwrite(thisPath, img);
+    
+    NSLog(@"\nIMAGE SAVED TO %@\n", filePath);
+}
+
+- (void) uiimwrite:(UIImage *)img withName:(NSString *)name
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *directory = [paths objectAtIndex:0];
+    NSString *filePath = [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@_%f.jpg", name, CFAbsoluteTimeGetCurrent()]];
+    
+    // Save image.
+    [UIImageJPEGRepresentation(img, 1.0) writeToFile:filePath atomically:YES];
+    
+    NSLog(@"\nIMAGE SAVED TO %@\n", filePath);
+}
 
 @end

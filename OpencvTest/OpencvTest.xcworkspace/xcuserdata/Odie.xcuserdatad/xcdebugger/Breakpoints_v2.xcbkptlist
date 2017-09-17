@@ -10,27 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OpencvTest/ViewController.mm"
-            timestampString = "527273267.964693"
+            timestampString = "527306590.552558"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "139"
-            endingLineNumber = "139"
-            landmarkName = "-thresholdImage:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "OpencvTest/ViewController.mm"
-            timestampString = "527275790.591439"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "255"
-            endingLineNumber = "255"
+            startingLineNumber = "304"
+            endingLineNumber = "304"
             landmarkName = "-skinSegmentation"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OpencvTest/ViewController.mm"
-            timestampString = "527276804.289048"
+            timestampString = "527306590.552558"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "383"
-            endingLineNumber = "383"
-            landmarkName = "-imwrite:"
+            startingLineNumber = "458"
+            endingLineNumber = "458"
+            landmarkName = "-differenceBetweenSkinAndFullImage"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

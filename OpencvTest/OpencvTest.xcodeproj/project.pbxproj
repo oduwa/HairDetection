@@ -29,6 +29,9 @@
 		4C73912A1F6D878E004E58B5 /* face4.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391261F6D878E004E58B5 /* face4.jpg */; };
 		4C73912B1F6D878E004E58B5 /* face3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391271F6D878E004E58B5 /* face3.jpg */; };
 		4C73912C1F6D878E004E58B5 /* face2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391281F6D878E004E58B5 /* face2.jpg */; };
+		4C73912E1F6DB938004E58B5 /* face6.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C73912D1F6DB938004E58B5 /* face6.jpg */; };
+		4C7391301F6DBA08004E58B5 /* face7.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C73912F1F6DBA08004E58B5 /* face7.jpg */; };
+		4C7391321F6DC78C004E58B5 /* face5_hd.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391311F6DC78C004E58B5 /* face5_hd.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +61,9 @@
 		4C7391261F6D878E004E58B5 /* face4.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face4.jpg; sourceTree = "<group>"; };
 		4C7391271F6D878E004E58B5 /* face3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face3.jpg; sourceTree = "<group>"; };
 		4C7391281F6D878E004E58B5 /* face2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face2.jpg; sourceTree = "<group>"; };
+		4C73912D1F6DB938004E58B5 /* face6.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face6.jpg; sourceTree = "<group>"; };
+		4C73912F1F6DBA08004E58B5 /* face7.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face7.jpg; sourceTree = "<group>"; };
+		4C7391311F6DC78C004E58B5 /* face5_hd.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face5_hd.jpg; sourceTree = "<group>"; };
 		7C6395150378B18CF79E6859 /* Pods-OpencvTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpencvTest.release.xcconfig"; path = "Pods/Target Support Files/Pods-OpencvTest/Pods-OpencvTest.release.xcconfig"; sourceTree = "<group>"; };
 		98A2C63EC6CCF2DF3464BD83 /* Pods-OpencvTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpencvTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OpencvTest/Pods-OpencvTest.debug.xcconfig"; sourceTree = "<group>"; };
 		E8D7ADDA11606A3E860D5B93 /* libPods-OpencvTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OpencvTest.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,11 +139,14 @@
 		4C18AE101F68967200F42A7E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				4C73912F1F6DBA08004E58B5 /* face7.jpg */,
 				4C47DE5D1F6C9DA700BAF5A1 /* face1.jpg */,
 				4C7391251F6D878E004E58B5 /* face5.jpg */,
+				4C7391311F6DC78C004E58B5 /* face5_hd.jpg */,
 				4C7391261F6D878E004E58B5 /* face4.jpg */,
 				4C7391271F6D878E004E58B5 /* face3.jpg */,
 				4C7391281F6D878E004E58B5 /* face2.jpg */,
+				4C73912D1F6DB938004E58B5 /* face6.jpg */,
 				4C18AE111F68967200F42A7E /* test1.jpg */,
 			);
 			path = Images;
@@ -238,8 +247,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C7391291F6D878E004E58B5 /* face5.jpg in Resources */,
+				4C7391301F6DBA08004E58B5 /* face7.jpg in Resources */,
 				4C73912C1F6D878E004E58B5 /* face2.jpg in Resources */,
 				4C18AE061F68915800F42A7E /* LaunchScreen.storyboard in Resources */,
+				4C73912E1F6DB938004E58B5 /* face6.jpg in Resources */,
 				4C7391231F6D813C004E58B5 /* haarcascade_profileface.xml in Resources */,
 				4C7391221F6D813C004E58B5 /* haarcascade_lowerbody.xml in Resources */,
 				4C7391201F6D813C004E58B5 /* haarcascade_frontalface_default.xml in Resources */,
@@ -253,6 +264,7 @@
 				4C7391211F6D813C004E58B5 /* haarcascade_fullbody.xml in Resources */,
 				4C73912A1F6D878E004E58B5 /* face4.jpg in Resources */,
 				4C73911F1F6D813C004E58B5 /* haarcascade_frontalface_alt_tree.xml in Resources */,
+				4C7391321F6DC78C004E58B5 /* face5_hd.jpg in Resources */,
 				4C18AE011F68915800F42A7E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

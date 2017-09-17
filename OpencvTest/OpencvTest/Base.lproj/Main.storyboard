@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -22,25 +23,38 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1Lb-fY-L6W">
-                                <rect key="frame" x="37" y="183" width="300" height="300"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="300" id="BQk-83-b02"/>
-                                    <constraint firstAttribute="width" constant="300" id="ncz-tj-XQ3"/>
-                                </constraints>
+                                <rect key="frame" x="37" y="79" width="300" height="432"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eV9-cc-bx6">
+                                <rect key="frame" x="151" y="519" width="73" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="2rW-c6-n9h"/>
+                                    <constraint firstAttribute="width" constant="73" id="rDF-Nc-fD2"/>
+                                </constraints>
+                                <state key="normal" title="START"/>
+                                <connections>
+                                    <action selector="didPressButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hWv-QQ-733"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="1Lb-fY-L6W" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="cWD-CU-Fpp"/>
-                            <constraint firstItem="1Lb-fY-L6W" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="npB-Gy-aBb"/>
+                            <constraint firstItem="1Lb-fY-L6W" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="21" id="5rq-Ss-70l"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="eV9-cc-bx6" secondAttribute="bottom" constant="118" id="Jty-QD-Pa3"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="1Lb-fY-L6W" secondAttribute="trailing" constant="22" id="MBC-aJ-63a"/>
+                            <constraint firstItem="1Lb-fY-L6W" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="59" id="RWU-hK-WVU"/>
+                            <constraint firstItem="eV9-cc-bx6" firstAttribute="top" secondItem="1Lb-fY-L6W" secondAttribute="bottom" constant="8" id="kIX-fw-FK1"/>
+                            <constraint firstItem="eV9-cc-bx6" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="yyQ-RA-CE6"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="cameraButton" destination="eV9-cc-bx6" id="f7U-j2-PZc"/>
                         <outlet property="imageView" destination="1Lb-fY-L6W" id="vCA-d2-djp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="136.80000000000001" y="138.98050974512745"/>
         </scene>
     </scenes>
 </document>
