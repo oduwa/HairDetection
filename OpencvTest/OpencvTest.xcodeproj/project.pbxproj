@@ -16,6 +16,10 @@
 		4C18AE061F68915800F42A7E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C18AE041F68915800F42A7E /* LaunchScreen.storyboard */; };
 		4C18AE0E1F6891C500F42A7E /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C18AE0D1F6891C500F42A7E /* AssetsLibrary.framework */; };
 		4C18AE121F68967200F42A7E /* test1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C18AE111F68967200F42A7E /* test1.jpg */; };
+		4C287E871F6ED47000F81C30 /* face9.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C287E841F6ED47000F81C30 /* face9.jpg */; };
+		4C287E881F6ED47000F81C30 /* face10.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C287E851F6ED47000F81C30 /* face10.jpg */; };
+		4C287E891F6ED47000F81C30 /* face8.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C287E861F6ED47000F81C30 /* face8.jpg */; };
+		4C287E8B1F6EDC6700F81C30 /* face11.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C287E8A1F6EDC6700F81C30 /* face11.jpg */; };
 		4C47DE5E1F6C9DA700BAF5A1 /* face1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C47DE5D1F6C9DA700BAF5A1 /* face1.jpg */; };
 		4C73911D1F6D813C004E58B5 /* haarcascade_frontalface_alt.xml in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391151F6D813C004E58B5 /* haarcascade_frontalface_alt.xml */; };
 		4C73911E1F6D813C004E58B5 /* haarcascade_frontalface_alt2.xml in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391161F6D813C004E58B5 /* haarcascade_frontalface_alt2.xml */; };
@@ -48,6 +52,10 @@
 		4C18AE0D1F6891C500F42A7E /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		4C18AE0F1F68923E00F42A7E /* OpencvTest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpencvTest-Prefix.pch"; sourceTree = "<group>"; };
 		4C18AE111F68967200F42A7E /* test1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test1.jpg; sourceTree = "<group>"; };
+		4C287E841F6ED47000F81C30 /* face9.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face9.jpg; sourceTree = "<group>"; };
+		4C287E851F6ED47000F81C30 /* face10.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face10.jpg; sourceTree = "<group>"; };
+		4C287E861F6ED47000F81C30 /* face8.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face8.jpg; sourceTree = "<group>"; };
+		4C287E8A1F6EDC6700F81C30 /* face11.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face11.jpg; sourceTree = "<group>"; };
 		4C47DE5D1F6C9DA700BAF5A1 /* face1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face1.jpg; sourceTree = "<group>"; };
 		4C7391151F6D813C004E58B5 /* haarcascade_frontalface_alt.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = haarcascade_frontalface_alt.xml; sourceTree = "<group>"; };
 		4C7391161F6D813C004E58B5 /* haarcascade_frontalface_alt2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = haarcascade_frontalface_alt2.xml; sourceTree = "<group>"; };
@@ -139,6 +147,10 @@
 		4C18AE101F68967200F42A7E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				4C287E8A1F6EDC6700F81C30 /* face11.jpg */,
+				4C287E841F6ED47000F81C30 /* face9.jpg */,
+				4C287E851F6ED47000F81C30 /* face10.jpg */,
+				4C287E861F6ED47000F81C30 /* face8.jpg */,
 				4C73912F1F6DBA08004E58B5 /* face7.jpg */,
 				4C47DE5D1F6C9DA700BAF5A1 /* face1.jpg */,
 				4C7391251F6D878E004E58B5 /* face5.jpg */,
@@ -254,7 +266,9 @@
 				4C7391231F6D813C004E58B5 /* haarcascade_profileface.xml in Resources */,
 				4C7391221F6D813C004E58B5 /* haarcascade_lowerbody.xml in Resources */,
 				4C7391201F6D813C004E58B5 /* haarcascade_frontalface_default.xml in Resources */,
+				4C287E891F6ED47000F81C30 /* face8.jpg in Resources */,
 				4C73911E1F6D813C004E58B5 /* haarcascade_frontalface_alt2.xml in Resources */,
+				4C287E871F6ED47000F81C30 /* face9.jpg in Resources */,
 				4C18AE121F68967200F42A7E /* test1.jpg in Resources */,
 				4C7391241F6D813C004E58B5 /* haarcascade_upperbody.xml in Resources */,
 				4C18AE031F68915800F42A7E /* Assets.xcassets in Resources */,
@@ -264,7 +278,9 @@
 				4C7391211F6D813C004E58B5 /* haarcascade_fullbody.xml in Resources */,
 				4C73912A1F6D878E004E58B5 /* face4.jpg in Resources */,
 				4C73911F1F6D813C004E58B5 /* haarcascade_frontalface_alt_tree.xml in Resources */,
+				4C287E881F6ED47000F81C30 /* face10.jpg in Resources */,
 				4C7391321F6DC78C004E58B5 /* face5_hd.jpg in Resources */,
+				4C287E8B1F6EDC6700F81C30 /* face11.jpg in Resources */,
 				4C18AE011F68915800F42A7E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

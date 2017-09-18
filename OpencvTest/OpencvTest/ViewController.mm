@@ -34,13 +34,11 @@ cv::CascadeClassifier face_cascade;
     self.view.backgroundColor = [UIColor whiteColor];
     self.videoCamera = [[CvVideoCamera alloc] initWithParentView:self.imageView];
     self.videoCamera.defaultAVCaptureDevicePosition = AVCaptureDevicePositionFront;
-    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset352x288;
+    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetLow;
     self.videoCamera.defaultAVCaptureVideoOrientation = AVCaptureVideoOrientationPortrait;
     self.videoCamera.defaultFPS = 30;
     self.videoCamera.grayscaleMode = NO;
     self.videoCamera.delegate = self;
-    
-    
     
     // Initialize face classifier
     char *cascadeName = (char*)"haarcascade_frontalface_alt";
@@ -51,15 +49,27 @@ cv::CascadeClassifier face_cascade;
         printf("Load error");
     }
     
+    /* Example Pipeline */
+    ///*
+    cv::Mat img;
+    cv::Mat img_copy;
+    UIImageToMat([UIImage imageNamed:@"face11.jpg"], img);
+    cvtColor(img, img, CV_BGRA2BGR);
+    cvtColor(img, img_copy, CV_BGRA2BGR);
     
-//    cv::Mat grabCut = [self grabCut];
-//    self.imageView.image = MatToUIImage(grabCut);
+    [self findDifferenceBetweenSkinAndForegroundInImage:img withCopy:img_copy toDest:img];
+    [self imwrite:img withName:@"xy"];
+    [self findContoursInImage:img];
     
-    //[self skinSegmentation];
-    //[self detectFace];
-    //[self skinColor];
-    //[self differenceBetweenSkinAndFullImage];
-    //[self findContours];
+    // apply mask
+    img.convertTo(img, CV_8U);
+    cv::cvtColor(img, img, CV_BGR2GRAY);
+    img_copy.setTo(cv::Scalar(0,0,255), img);
+    
+    [self imwrite:img_copy withName:@"x"];
+    self.imageView.image = MatToUIImage(img_copy);
+    NSLog(@"done.");
+     //*/
 }
 
 - (std::string) getBundlePathForResourceWithName:(char *)name andType:(char *)type
@@ -264,6 +274,54 @@ cv::CascadeClassifier face_cascade;
     return grabCut;
 }
 
+
+- (void) grabCutImage:(cv::Mat&)src8UC3 withCopy:(cv::Mat&)src_copy
+{
+     if(src8UC3.type() != CV_8UC3 || src_copy.type() != CV_8UC3){
+         [NSException raise:@"Images must be of type CV_8UC3" format:@""];
+     }
+    
+    // Initialise stuff for grabCut
+    cv::Mat result(src8UC3.size(), src8UC3.type());
+    cv::Mat bgModel;// background model
+    cv::Mat fgModel;// foreground model
+    
+    // Draw a rectangle
+    cv::Rect rectangle(1,1,src8UC3.cols-1,src8UC3.rows-1);
+    
+    // Perform grabcut
+    cv::grabCut(src8UC3, result, rectangle, bgModel, fgModel, 10, cv::GC_INIT_WITH_RECT);
+    cv::compare(result, cv::Scalar(3,3,3), result, cv::CMP_EQ);
+    src8UC3.setTo(cv::Scalar(255,255,255));
+    src_copy.copyTo(src8UC3, result);
+}
+
+- (void) performskinSegmentationOnImage:(cv::Mat&)grabCut
+{
+    // Ensure BGR
+    cv::Mat grabCut_copy;
+    cvtColor(grabCut, grabCut_copy, CV_RGB2BGR);
+    
+    cvtColor(grabCut, grabCut, CV_RGB2BGR);
+    grabCut.setTo(cv::Scalar(0,0,255));
+    cv::Mat skinMask;
+    cv::Mat hsvMatrix;
+    
+    cv::Scalar lower(0,48,80);//lower(120,120,120);
+    cv::Scalar upper(20,255,255);//upper(240,180,280);
+    
+    cvtColor(grabCut_copy, hsvMatrix, CV_BGR2HSV);
+    cv::inRange(hsvMatrix, lower, upper, skinMask);
+    
+    cv::Mat kernel(cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(11,11)));
+    cv::erode(skinMask, skinMask, kernel);
+    cv::dilate(skinMask, skinMask, kernel);
+    
+    cv::GaussianBlur(skinMask, skinMask, cv::Size(3,3), 0);
+    cv::bitwise_and(grabCut_copy, grabCut_copy, grabCut, skinMask);
+    [self imwrite:grabCut withName:@"skin"];
+}
+
 - (cv::Mat) skinSegmentation:(cv::Mat)grabCut
 {
     cvtColor(grabCut, grabCut, CV_RGB2BGR);
@@ -393,6 +451,11 @@ cv::CascadeClassifier face_cascade;
     return faces;
 }
 
+- (void) histogramsForImage:(cv::Mat)src
+{
+    
+}
+
 - (void) skinColor
 {
     cv::Mat frame;
@@ -446,7 +509,6 @@ cv::CascadeClassifier face_cascade;
     // Skin detection
     cv::Mat skinDetection = [self skinSegmentation:grabCut];
     //[self imwrite:skinDetection withName:@"skin_rgb"];
-    self.imageView.image = MatToUIImage(skinDetection);
     cvtColor(skinDetection, skinDetection, CV_RGB2BGR);
     
     
@@ -482,6 +544,56 @@ cv::CascadeClassifier face_cascade;
     //[self imwrite:difference withName:@"erosion"];
     
     return difference;
+}
+
+- (void) findDifferenceBetweenSkinAndForegroundInImage:(cv::Mat)img withCopy:(cv::Mat)src toDest:(cv::Mat&)difference
+{
+    cv::Mat img_copy;
+    cvtColor(img, img, CV_BGRA2BGR);
+    cvtColor(img, img_copy, CV_BGRA2BGR);
+    
+    [self grabCutImage:img withCopy:img_copy];
+    cv::Mat grabCut(img.size(), img.type());
+    cvtColor(img, grabCut, CV_RGB2BGR);
+    
+    [self performskinSegmentationOnImage:img];
+    cv::Mat skinDetection(img.size(), img.type());
+    cvtColor(img, skinDetection, CV_RGB2BGR);
+    
+    difference.setTo(cv::Scalar(255,255,255));
+    int rows = difference.rows;
+    int cols = difference.cols;
+    
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            cv::Vec3b grabcut_pixel_vals = grabCut.at<cv::Vec3b>(r, c);
+            cv::Vec3b skin_pixel_vals = skinDetection.at<cv::Vec3b>(r, c);
+            
+            //extract those pixels which are non blue/nonwhite in 1st image and red in 2nd image
+            if( ((grabcut_pixel_vals[0] != 255 ) && (grabcut_pixel_vals[1] != 255 ) && (grabcut_pixel_vals[2] != 255)) &&
+               ((skin_pixel_vals[0] == 255) && (skin_pixel_vals[1] == 0) &&(skin_pixel_vals[2] == 0) )){
+                difference.at<cv::Vec3b>(r, c) = src.at<cv::Vec3b>(r, c);
+                //NSLog(@"pikachu.");
+            }
+        }
+    }
+    
+    
+    
+//    //self.imageView.image = MatToUIImage(difference);
+//    //[self imwrite:difference withName:@"diff"];
+//    
+//    
+//    /****** EROSION & DILUTION *******/
+//    cv::Mat morph(src.size(), src.type());
+//    int erosionSize = 2;
+//    cv::Mat erosionKernel = cv::getStructuringElement(cv::MORPH_ERODE, cv::Size(2*erosionSize+1,2*erosionSize+1));
+//    cv::erode(difference, morph, erosionKernel);
+//    
+//    self.imageView.image = MatToUIImage(difference);
+//    //[self imwrite:difference withName:@"erosion"];
+//    
+//    return difference;
 }
 
 - (void) findContours
@@ -524,6 +636,44 @@ cv::CascadeClassifier face_cascade;
     self.imageView.image = MatToUIImage(imgContoured);
 }
 
+- (void) findContoursInImage:(cv::Mat)img
+{
+    cv::Mat grayImage;
+    cv::Mat cannyImage;
+    std::vector<std::vector<cv::Point>> contours;
+    self.imageView.image = MatToUIImage(img);
+    
+    cvtColor(img, grayImage, CV_BGR2GRAY);
+    cv::Canny(grayImage, cannyImage, 100, 200);
+    
+    //morph edge detected image to improve egde connectivity
+    cv::Mat kernel = cv::getStructuringElement(CV_SHAPE_RECT, cv::Size(5,5));
+    cv::morphologyEx(cannyImage, cannyImage, cv::MORPH_CLOSE, kernel);
+    [self imwrite:cannyImage withName:@"canny"];
+    
+    cv::Mat hierarchy;
+    cv::findContours(cannyImage, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    img.setTo(cv::Scalar(0,0,0));
+    
+    double maxArea = cv::contourArea(contours.at(0));
+    int maxAreaIndex = 0;
+    std::vector<cv::Point> temp_contour;
+    for(int i = 1; i < contours.size(); i++){
+        temp_contour = contours.at(i);
+        double curr_cont_area = cv::contourArea(temp_contour);
+        if(maxArea < curr_cont_area){
+            maxArea = curr_cont_area;
+            maxAreaIndex = i;
+        }
+    }
+    cv::drawContours(img, contours, maxAreaIndex, cv::Scalar(255,255,255), -1);
+    
+    // Create mask for finding hair
+    // make img a binary mask
+    cvtColor(img, img, CV_BGR2GRAY);
+    
+}
+
 #pragma mark - Protocol CvVideoCameraDelegate
 
 - (void)processImage:(cv::Mat&)image;
@@ -532,8 +682,18 @@ cv::CascadeClassifier face_cascade;
     [self markFacesInFrame:image];
     lastFrame = image;
      */
-    cv::Mat cpy = [self grabCut:image];
-    cvtColor(cpy, image, CV_BGR2RGB);
+    cv::Mat img_copy;
+    cvtColor(image, image, CV_BGRA2BGR);
+    cvtColor(image, img_copy, CV_BGRA2BGR);
+    
+    [self findDifferenceBetweenSkinAndForegroundInImage:img_copy withCopy:image toDest:img_copy];
+    [self findContoursInImage:img_copy];
+    
+    // apply mask
+    img_copy.convertTo(img_copy, CV_8U);
+    cv::cvtColor(img_copy, img_copy, CV_BGR2GRAY);
+    image.setTo(cv::Scalar(0,0,255), img_copy);
+    cvtColor(image, image, CV_BGR2RGB);
 }
 
 - (void) imwrite:(cv::Mat)img
