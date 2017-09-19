@@ -49,8 +49,13 @@ cv::CascadeClassifier face_cascade;
         printf("Load error");
     }
     
+    //[self skinColor];
+    cv::Mat img;
+    UIImageToMat([UIImage imageNamed:@"face3.jpg"], img, false);
+    self.imageView.image = MatToUIImage([self skinSegmentation:img]);
+    
     /* Example Pipeline */
-    ///*
+    /*
     cv::Mat img;
     cv::Mat img_copy;
     UIImageToMat([UIImage imageNamed:@"face11.jpg"], img);
@@ -69,7 +74,7 @@ cv::CascadeClassifier face_cascade;
     [self imwrite:img_copy withName:@"x"];
     self.imageView.image = MatToUIImage(img_copy);
     NSLog(@"done.");
-     //*/
+     */
 }
 
 - (std::string) getBundlePathForResourceWithName:(char *)name andType:(char *)type
@@ -205,7 +210,6 @@ cv::CascadeClassifier face_cascade;
     cv::Mat grabCut;
     
     // Load image
-    self.imageView.image = [UIImage imageNamed:@"face1.jpg"];
     UIImageToMat([UIImage imageNamed:@"face1.jpg"], src, false);
     
     // Convert to CV_8UC3 because grabCut() needs it
@@ -334,11 +338,12 @@ cv::CascadeClassifier face_cascade;
     cv::Mat skinMask;
     cv::Mat hsvMatrix;
     
-    cv::Scalar lower(0,48,80);//lower(120,120,120);
-    cv::Scalar upper(20,255,255);//upper(240,180,280);
+    cv::Scalar lower(0,0,0);//lower(120,120,120);
+    cv::Scalar upper(60,255,255);//upper(240,180,280);
     
     cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
     cv::inRange(hsvMatrix, lower, upper, skinMask);
+    [self imwrite:skinMask withName:@"mask"];
     
     cv::Mat kernel(cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(11,11)));
     cv::erode(skinMask, skinMask, kernel);
@@ -370,8 +375,8 @@ cv::CascadeClassifier face_cascade;
     cv::Mat skinMask;
     cv::Mat hsvMatrix;
     
-    cv::Scalar lower(0,48,80);//lower(120,120,120);
-    cv::Scalar upper(20,255,255);//upper(240,180,280);
+    cv::Scalar lower(120,0,0);//lower(120,120,120);
+    cv::Scalar upper(137,255,255);//upper(240,180,280);
     
     cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
     cv::inRange(hsvMatrix, lower, upper, skinMask);
@@ -453,7 +458,77 @@ cv::CascadeClassifier face_cascade;
 
 - (void) histogramsForImage:(cv::Mat)src
 {
+    // convert image to hsv
+    cv::Mat src_hsv;
+    cvtColor(src, src_hsv, CV_BGR2HSV);
     
+    // separate channels into individual matrices
+    std::vector<cv::Mat> hsv_planes;
+    cv::split(src_hsv, hsv_planes);
+    
+    // Establish the number of bins
+    int h_histSize = 180;
+    int s_histSize = 256;
+    int v_histSize = 256;
+    
+    // Set the ranges
+    float range_h[] = { 0, 180 } ;
+    float range_s[] = { 0, 256 } ;
+    float range_v[] = { 0, 256 } ;
+    const float* h_histRange = { range_h };
+    const float* s_histRange = { range_s };
+    const float* v_histRange = { range_v };
+    
+    bool uniform = true; bool accumulate = false;
+    cv::Mat h_hist, s_hist, v_hist;
+    
+    // Compute the histograms
+    cv::calcHist(&hsv_planes[0], 1, 0, cv::Mat(), h_hist, 1, &h_histSize, &h_histRange, uniform, accumulate);
+    cv::calcHist(&hsv_planes[1], 1, 0, cv::Mat(), s_hist, 1, &s_histSize, &s_histRange, uniform, accumulate);
+    cv::calcHist(&hsv_planes[2], 1, 0, cv::Mat(), v_hist, 1, &v_histSize, &v_histRange, uniform, accumulate);
+    
+    // Draw the histogram for h
+    int hist_w = 512; int hist_h = 400;
+    int bin_w = cvRound( (double) hist_w/h_histSize );
+    cv::Mat histImage(hist_h, hist_w, CV_8UC3, cv::Scalar(255,255,255));
+    
+    // Normalize the result to [ 0, histImage.rows ]
+    normalize(h_hist, h_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+    
+    for( int i = 1; i < h_histSize; i++ )
+    {
+        cv::line( histImage, cv::Point(bin_w*(i-1), hist_h - cvRound(h_hist.at<float>(i-1)) ) ,
+                 cv::Point( bin_w*(i), hist_h - cvRound(h_hist.at<float>(i)) ),
+                 cv::Scalar( 255, 0, 0), 2, 8, 0  );
+    }
+    [self imwrite:histImage withName:@"h_hist"];
+    
+    // Draw the histogram for s
+    bin_w = cvRound( (double) hist_w/s_histSize );
+    histImage.setTo(cv::Scalar(255,255,255));
+    normalize(s_hist, s_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+    for( int i = 1; i < s_histSize; i++ )
+    {
+        cv::line( histImage, cv::Point(bin_w*(i-1), hist_h - cvRound(s_hist.at<float>(i-1)) ) ,
+                 cv::Point( bin_w*(i), hist_h - cvRound(s_hist.at<float>(i)) ),
+                 cv::Scalar( 0, 255, 0), 2, 8, 0  );
+    }
+    [self imwrite:histImage withName:@"s_hist"];
+    
+    // Draw the histogram for v
+    bin_w = cvRound( (double) hist_w/v_histSize );
+    histImage.setTo(cv::Scalar(255,255,255));
+    normalize(v_hist, v_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+    for( int i = 1; i < v_histSize; i++ )
+    {
+        cv::line( histImage, cv::Point(bin_w*(i-1), hist_h - cvRound(v_hist.at<float>(i-1)) ) ,
+                 cv::Point( bin_w*(i), hist_h - cvRound(v_hist.at<float>(i)) ),
+                 cv::Scalar( 0, 0, 255), 2, 8, 0  );
+    }
+    [self imwrite:histImage withName:@"v_hist"];
+    
+    
+    [self imwrite:src withName:@"face"];
 }
 
 - (void) skinColor
@@ -463,7 +538,7 @@ cv::CascadeClassifier face_cascade;
     cv::Mat faceROI_hsv;
     
     // detect face regions
-    UIImageToMat([UIImage imageNamed:@"face5.jpg"], frame, false);
+    UIImageToMat([UIImage imageNamed:@"face1.jpg"], frame, false);
     
     std::vector<cv::Rect> faces = [self detectFacesInImage:frame];
     
@@ -486,9 +561,10 @@ cv::CascadeClassifier face_cascade;
         cv::meanStdDev(faceROI_hsv, mean_hsv, stdDev_hsv);
         NSLog(@"HSV MEAN: (%f, %f, %f)", mean_hsv[0], mean_hsv[1], mean_hsv[2]);
         NSLog(@"HSV STD_DEV: (%f, %f, %f)", stdDev_hsv[0], stdDev_hsv[1], stdDev_hsv[2]);
+        [self histogramsForImage:faceROI];
     }
     
-    [self imwrite:faceROI_hsv];
+    //[self imwrite:faceROI_hsv];
 }
 
 - (cv::Mat) differenceBetweenSkinAndFullImage
