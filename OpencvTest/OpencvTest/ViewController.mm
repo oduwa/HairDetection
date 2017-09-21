@@ -338,8 +338,8 @@ cv::CascadeClassifier face_cascade;
     cv::Mat skinMask;
     cv::Mat hsvMatrix;
     
-    cv::Scalar lower(0,0,0);//lower(120,120,120);
-    cv::Scalar upper(60,255,255);//upper(240,180,280);
+    cv::Scalar lower(40,0,0);//lower(120,120,120);
+    cv::Scalar upper(180,255,255);//upper(240,180,280);
     
     cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
     cv::inRange(hsvMatrix, lower, upper, skinMask);
@@ -486,6 +486,9 @@ cv::CascadeClassifier face_cascade;
     cv::calcHist(&hsv_planes[0], 1, 0, cv::Mat(), h_hist, 1, &h_histSize, &h_histRange, uniform, accumulate);
     cv::calcHist(&hsv_planes[1], 1, 0, cv::Mat(), s_hist, 1, &s_histSize, &s_histRange, uniform, accumulate);
     cv::calcHist(&hsv_planes[2], 1, 0, cv::Mat(), v_hist, 1, &v_histSize, &v_histRange, uniform, accumulate);
+    double min,max;
+    cv::minMaxLoc(h_hist, &min, &max);
+    NSLog(@"MIN,MAX VALS => %f,%f", min, max);
     
     // Draw the histogram for h
     int hist_w = 512; int hist_h = 400;
