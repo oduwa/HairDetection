@@ -338,7 +338,7 @@ cv::CascadeClassifier face_cascade;
     cv::Mat skinMask;
     cv::Mat hsvMatrix;
     
-    cv::Scalar lower(60,0,0);//lower(120,120,120);
+    cv::Scalar lower(65,0,0);//lower(120,120,120);
     cv::Scalar upper(180,255,255);//upper(240,180,280);
     
     cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
