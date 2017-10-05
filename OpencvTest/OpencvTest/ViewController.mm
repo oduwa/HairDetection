@@ -50,15 +50,15 @@ cv::CascadeClassifier face_cascade;
     }
     
     //[self skinColor];
-    cv::Mat img;
-    UIImageToMat([UIImage imageNamed:@"face3.jpg"], img, false);
-    self.imageView.image = MatToUIImage([self skinSegmentation:img]);
+//    cv::Mat img;
+//    UIImageToMat([UIImage imageNamed:@"face5.jpg"], img, false);
+//    self.imageView.image = MatToUIImage([self skinSegmentation2:img]);
     
     /* Example Pipeline */
     /*
     cv::Mat img;
     cv::Mat img_copy;
-    UIImageToMat([UIImage imageNamed:@"face11.jpg"], img);
+    UIImageToMat([UIImage imageNamed:@"face5.jpg"], img);
     cvtColor(img, img, CV_BGRA2BGR);
     cvtColor(img, img_copy, CV_BGRA2BGR);
     
@@ -326,6 +326,32 @@ cv::CascadeClassifier face_cascade;
     [self imwrite:grabCut withName:@"skin"];
 }
 
+- (void) performskinSegmentationOnImageYCrCb:(cv::Mat&)grabCut
+{
+    // Ensure BGR
+    cv::Mat grabCut_copy;
+    cvtColor(grabCut, grabCut_copy, CV_RGB2BGR);
+    
+    cvtColor(grabCut, grabCut, CV_RGB2BGR);
+    grabCut.setTo(cv::Scalar(0,0,255));
+    cv::Mat skinMask;
+    cv::Mat ycrcbMatrix;
+    
+    cv::Scalar lower(0,133,77);
+    cv::Scalar upper(255,173,127);
+    
+    cvtColor(grabCut_copy, ycrcbMatrix, CV_BGR2HSV);
+    cv::inRange(ycrcbMatrix, lower, upper, skinMask);
+    
+    cv::Mat kernel(cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(11,11)));
+    cv::erode(skinMask, skinMask, kernel);
+    cv::dilate(skinMask, skinMask, kernel);
+    
+    cv::GaussianBlur(skinMask, skinMask, cv::Size(3,3), 0);
+    cv::bitwise_and(grabCut_copy, grabCut_copy, grabCut, skinMask);
+    [self imwrite:grabCut withName:@"skin"];
+}
+
 - (cv::Mat) skinSegmentation:(cv::Mat)grabCut
 {
     cvtColor(grabCut, grabCut, CV_RGB2BGR);
@@ -336,13 +362,23 @@ cv::CascadeClassifier face_cascade;
     skinDetection.setTo(cv::Scalar(0,0,255));
     cvtColor(skinDetection, skinDetection, CV_RGB2BGR);
     cv::Mat skinMask;
+    cv::Mat skinMask2;
     cv::Mat hsvMatrix;
-    
-    cv::Scalar lower(70,0,0);//lower(120,120,120);
-    cv::Scalar upper(180,255,255);//upper(240,180,280);
+    //s - 90/120, v - 200-240
+    // range for s value
+    cv::Scalar lower(0,0,120);//lower(120,120,120);
+    cv::Scalar upper(255,255,240);//upper(240,180,280);
     
     cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
     cv::inRange(hsvMatrix, lower, upper, skinMask);
+    
+    lower = cv::Scalar(0,0,200);
+    upper = cv::Scalar(0,0,255);
+    
+    // range for v value
+    cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
+    cv::inRange(hsvMatrix, lower, upper, skinMask2);
+    
     [self imwrite:skinMask withName:@"mask"];
     
     cv::Mat kernel(cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(11,11)));
@@ -351,6 +387,51 @@ cv::CascadeClassifier face_cascade;
     
     cv::GaussianBlur(skinMask, skinMask, cv::Size(3,3), 0);
     cv::bitwise_and(grabCut, grabCut, skinDetection, skinMask);
+    
+//    cv::erode(skinMask2, skinMask2, kernel);
+//    cv::dilate(skinMask2, skinMask2, kernel);
+//
+//    cv::GaussianBlur(skinMask2, skinMask2, cv::Size(3,3), 0);
+//    cv::bitwise_and(grabCut, grabCut, skinDetection, skinMask2);
+    
+    //self.imageView.image = MatToUIImage(skinDetection);
+    [self uiimwrite:MatToUIImage(skinDetection) withName:@"skin_hsv"];
+    return skinDetection;
+}
+
+- (cv::Mat) skinSegmentation2:(cv::Mat)grabCut
+{
+    cvtColor(grabCut, grabCut, CV_RGB2BGR);
+    //self.imageView.image = MatToUIImage(grabCut);
+    
+    
+    cv::Mat skinDetection(grabCut.size(), grabCut.type());
+    skinDetection.setTo(cv::Scalar(0,0,255));
+    cvtColor(skinDetection, skinDetection, CV_RGB2BGR);
+    
+    cv::Mat skinMask;
+    cv::Mat ycrcbMatrix;
+
+    cv::Scalar lower(0,133,77);
+    cv::Scalar upper(255,173,127);
+    
+    cvtColor(grabCut, ycrcbMatrix, CV_BGR2YCrCb);[self uiimwrite:MatToUIImage(ycrcbMatrix) withName:@"skin_ycrcb"];
+    cv::inRange(ycrcbMatrix, lower, upper, skinMask);
+    
+    [self imwrite:skinMask withName:@"mask"];
+    
+    //cv::Mat kernel(cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(11,11)));
+    //cv::erode(skinMask, skinMask, kernel);
+    //cv::dilate(skinMask, skinMask, kernel);
+    
+    //cv::GaussianBlur(skinMask, skinMask, cv::Size(3,3), 0);
+    cv::bitwise_and(grabCut, grabCut, skinDetection, skinMask);
+    
+    //    cv::erode(skinMask2, skinMask2, kernel);
+    //    cv::dilate(skinMask2, skinMask2, kernel);
+    //
+    //    cv::GaussianBlur(skinMask2, skinMask2, cv::Size(3,3), 0);
+    //    cv::bitwise_and(grabCut, grabCut, skinDetection, skinMask2);
     
     //self.imageView.image = MatToUIImage(skinDetection);
     [self uiimwrite:MatToUIImage(skinDetection) withName:@"skin_hsv"];
@@ -375,8 +456,11 @@ cv::CascadeClassifier face_cascade;
     cv::Mat skinMask;
     cv::Mat hsvMatrix;
     
-    cv::Scalar lower(120,0,0);//lower(120,120,120);
-    cv::Scalar upper(137,255,255);//upper(240,180,280);
+//    cv::Scalar lower(120,0,0);//lower(120,120,120);
+//    cv::Scalar upper(137,255,255);//upper(240,180,280);
+      cv::Scalar lower(0,0,120);//lower(120,120,120);
+      cv::Scalar upper(255,255,240);//upper(240,180,280);
+
     
     cvtColor(grabCut, hsvMatrix, CV_BGR2HSV);
     cv::inRange(hsvMatrix, lower, upper, skinMask);
@@ -393,6 +477,7 @@ cv::CascadeClassifier face_cascade;
     //self.imageView.image = MatToUIImage(skinDetection);
     return skinDetection;
 }
+
 
 
 - (void) detectFace
@@ -532,6 +617,17 @@ cv::CascadeClassifier face_cascade;
     
     
     [self imwrite:src withName:@"face"];
+    
+    // Find min max values
+    double minVal, maxVal = 0;
+    int minLoc, maxLoc = 0;
+    //cv::minMaxLoc(h_hist, &minVal, &maxVal, NULL, NULL, NULL);
+    cv::minMaxIdx(h_hist, &minVal, &maxVal, &minLoc, &maxLoc);
+    NSLog(@"VALS: (%f, %f)\nIDX: (%d, %d)", minVal, maxVal, minLoc, maxLoc);
+    cv::minMaxIdx(s_hist, &minVal, &maxVal, &minLoc, &maxLoc);
+    NSLog(@"VALS: (%f, %f)\nIDX: (%d, %d)", minVal, maxVal, minLoc, maxLoc);
+    cv::minMaxIdx(v_hist, &minVal, &maxVal, &minLoc, &maxLoc);
+    NSLog(@"VALS: (%f, %f)\nIDX: (%d, %d)", minVal, maxVal, minLoc, maxLoc);
 }
 
 - (void) skinColor
@@ -635,7 +731,7 @@ cv::CascadeClassifier face_cascade;
     cv::Mat grabCut(img.size(), img.type());
     cvtColor(img, grabCut, CV_RGB2BGR);
     
-    [self performskinSegmentationOnImage:img];
+    [self performskinSegmentationOnImageYCrCb:img];//[self performskinSegmentationOnImage:img];
     cv::Mat skinDetection(img.size(), img.type());
     cvtColor(img, skinDetection, CV_RGB2BGR);
     

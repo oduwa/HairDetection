@@ -36,6 +36,7 @@
 		4C73912E1F6DB938004E58B5 /* face6.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C73912D1F6DB938004E58B5 /* face6.jpg */; };
 		4C7391301F6DBA08004E58B5 /* face7.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C73912F1F6DBA08004E58B5 /* face7.jpg */; };
 		4C7391321F6DC78C004E58B5 /* face5_hd.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4C7391311F6DC78C004E58B5 /* face5_hd.jpg */; };
+		4CE5E72C1F85B57200120007 /* face12.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 4CE5E72B1F85B41800120007 /* face12.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,7 @@
 		4C73912D1F6DB938004E58B5 /* face6.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face6.jpg; sourceTree = "<group>"; };
 		4C73912F1F6DBA08004E58B5 /* face7.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face7.jpg; sourceTree = "<group>"; };
 		4C7391311F6DC78C004E58B5 /* face5_hd.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face5_hd.jpg; sourceTree = "<group>"; };
+		4CE5E72B1F85B41800120007 /* face12.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = face12.jpg; sourceTree = "<group>"; };
 		7C6395150378B18CF79E6859 /* Pods-OpencvTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpencvTest.release.xcconfig"; path = "Pods/Target Support Files/Pods-OpencvTest/Pods-OpencvTest.release.xcconfig"; sourceTree = "<group>"; };
 		98A2C63EC6CCF2DF3464BD83 /* Pods-OpencvTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpencvTest.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OpencvTest/Pods-OpencvTest.debug.xcconfig"; sourceTree = "<group>"; };
 		E8D7ADDA11606A3E860D5B93 /* libPods-OpencvTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OpencvTest.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -147,6 +149,7 @@
 		4C18AE101F68967200F42A7E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				4CE5E72B1F85B41800120007 /* face12.jpg */,
 				4C287E8A1F6EDC6700F81C30 /* face11.jpg */,
 				4C287E841F6ED47000F81C30 /* face9.jpg */,
 				4C287E851F6ED47000F81C30 /* face10.jpg */,
@@ -266,6 +269,7 @@
 				4C7391231F6D813C004E58B5 /* haarcascade_profileface.xml in Resources */,
 				4C7391221F6D813C004E58B5 /* haarcascade_lowerbody.xml in Resources */,
 				4C7391201F6D813C004E58B5 /* haarcascade_frontalface_default.xml in Resources */,
+				4CE5E72C1F85B57200120007 /* face12.jpg in Resources */,
 				4C287E891F6ED47000F81C30 /* face8.jpg in Resources */,
 				4C73911E1F6D813C004E58B5 /* haarcascade_frontalface_alt2.xml in Resources */,
 				4C287E871F6ED47000F81C30 /* face9.jpg in Resources */,
