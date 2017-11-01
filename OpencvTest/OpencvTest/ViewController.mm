@@ -415,7 +415,7 @@ cv::CascadeClassifier face_cascade;
     cv::Scalar lower(0,133,77);
     cv::Scalar upper(255,173,127);
     
-    cvtColor(grabCut, ycrcbMatrix, CV_BGR2YCrCb);[self uiimwrite:MatToUIImage(ycrcbMatrix) withName:@"skin_ycrcb"];
+    cvtColor(grabCut, ycrcbMatrix, CV_BGR2YCrCb);[self uiimwrite:MatToUIImage(ycrcbMatrix) withName:@"skinn_ycrcb"];
     cv::inRange(ycrcbMatrix, lower, upper, skinMask);
     
     [self imwrite:skinMask withName:@"mask"];
