@@ -36,7 +36,7 @@
     lowerBValue = 100;
     
     // Load test image
-    self.imageView.image = [UIImage imageNamed:@"blocks.png"];
+    self.imageView.image = [UIImage imageNamed:@"test2.jpg"];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -57,7 +57,7 @@
 {
     // Load image
     cv::Mat img;
-    UIImageToMat([UIImage imageNamed:@"blocks.png"], img, false);
+    UIImageToMat([UIImage imageNamed:@"test2.jpg"], img, false);
     
     // Create matrix for colour detected image
     cv::Mat colourDetection(img.size(), img.type());
