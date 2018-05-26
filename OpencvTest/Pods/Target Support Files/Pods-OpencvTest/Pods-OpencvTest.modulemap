@@ -1,0 +1,6 @@
+framework module Pods_OpencvTest {
+  umbrella header "Pods-OpencvTest-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'DD9D455081D2C92EA74C2E17C834576B'
+               BlueprintIdentifier = '47CBCDC732FEC2BDB96B0D933D128936'
                BlueprintName = 'Pods-OpencvTest'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libPods-OpencvTest.a'>

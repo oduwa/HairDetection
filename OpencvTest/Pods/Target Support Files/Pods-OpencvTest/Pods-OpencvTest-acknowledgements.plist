@@ -48,6 +48,8 @@ or tort (including negligence or otherwise) arising in any way out of
 the use of this software, even if advised of the possibility of such damage.
 
 </string>
+			<key>License</key>
+			<string>3-clause BSD</string>
 			<key>Title</key>
 			<string>OpenCV</string>
 			<key>Type</key>

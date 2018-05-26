@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '29D94DEAA169117F0E03589DAE8302A6'
+               BlueprintIdentifier = '88140028E8E3FD9B4B1CE51AB7B65DA2'
                BlueprintName = 'OpenCV'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libOpenCV.a'>
